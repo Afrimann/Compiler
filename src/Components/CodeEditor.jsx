@@ -33,23 +33,86 @@ const CodeEditor = () => {
   };
 
   return (
-    <div>
+    <div style={styles.container}>
+      <h1 style={styles.title}>Simple Compiler</h1>
       <textarea
         value={code}
         onChange={(e) => setCode(e.target.value)}
         rows="10"
         cols="50"
         placeholder="Enter code here"
+        style={styles.textarea}
       ></textarea>
-      <button onClick={handleCompile}>Compile</button>
-      <div>
-        <h3>Tokens:</h3>
-        <pre>{JSON.stringify(tokens, null, 2)}</pre>
-        <h3>Output:</h3>
-        <pre>{output}</pre>
+      <button onClick={handleCompile} style={styles.button}>Compile</button>
+      <div style={styles.outputContainer}>
+        <div style={styles.tokensContainer}>
+          <h3>Tokens:</h3>
+          <pre style={styles.pre}>{JSON.stringify(tokens, null, 2)}</pre>
+        </div>
+        <div style={styles.output}>
+          <h3>Output:</h3>
+          <pre style={styles.pre}>{output}</pre>
+        </div>
       </div>
     </div>
   );
+};
+
+const styles = {
+  container: {
+    fontFamily: 'Arial, sans-serif',
+    padding: '20px',
+    maxWidth: '800px',
+    margin: '0 auto',
+    backgroundColor: '#f4f4f4',
+    borderRadius: '8px',
+    boxShadow: '0 0 10px rgba(0,0,0,0.1)',
+  },
+  title: {
+    textAlign: 'center',
+    color: '#333',
+  },
+  textarea: {
+    width: '100%',
+    padding: '10px',
+    fontSize: '16px',
+    borderRadius: '4px',
+    border: '1px solid #ccc',
+    marginBottom: '10px',
+    boxSizing: 'border-box',
+  },
+  button: {
+    display: 'block',
+    width: '100%',
+    padding: '10px',
+    fontSize: '16px',
+    color: '#fff',
+    backgroundColor: '#007BFF',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    marginBottom: '20px',
+  },
+  buttonHover: {
+    backgroundColor: '#0056b3',
+  },
+  outputContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  tokensContainer: {
+    marginBottom: '20px',
+  },
+  output: {
+    marginBottom: '20px',
+  },
+  pre: {
+    backgroundColor: '#fff',
+    padding: '10px',
+    borderRadius: '4px',
+    border: '1px solid #ccc',
+    overflowX: 'auto',
+  },
 };
 
 export default CodeEditor;
