@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { lexer } from '../Compiler/Lexer.jsx';
 import { parser } from '../Compiler/Parser.jsx';
+import { semanticAnalyzer } from '../Compiler/SemanticAnalyzer.jsx'; // Import semantic analyzer
+import { irGenerator } from '../Compiler/IRGenerator.jsx'; // Import IR generator
+import { optimize } from '../Compiler/Optimizer.jsx'; // Import optimizer
 import { codeGenerator } from '../Compiler/CodeGenerator.jsx';
 
 const CodeEditor = () => {
@@ -14,7 +17,12 @@ const CodeEditor = () => {
       setTokens(lexedTokens); // Update the state with the tokens
 
       const ast = parser(lexedTokens); // Parse the tokens into an AST
-      const generatedCode = codeGenerator(ast); // Generate code from the AST
+      semanticAnalyzer(ast); // Check for semantic issues
+
+      const irNodes = irGenerator(ast); // Generate IR from the AST
+      const optimizedIR = optimize(irNodes); // Optimize the IR
+      const generatedCode = codeGenerator(optimizedIR); // Generate code from the IR
+
       setOutput(generatedCode); // Update the output state with the generated code
     } catch (error) {
       setOutput(`Error: ${error.message}`); // Display errors

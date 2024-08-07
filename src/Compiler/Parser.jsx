@@ -1,115 +1,69 @@
 export function parser(tokens) {
-    let current = 0;
+    let position = 0;
   
-    function walk() {
-      if (current >= tokens.length) {
-        throw new Error(`Unexpected end of input`);
-      }
+    function parseStatement() {
+      const token = tokens[position];
   
-      let token = tokens[current];
+      switch (token.type) {
+        case 'Keyword':
+          if (token.value === 'var') {
+            position++; // Move past the 'var' token
+            const identifierToken = tokens[position];
   
-      // Handle literals
-      if (token.type === 'Literal') {
-        current++;
-        return {
-          type: 'Literal',
-          value: token.value
-        };
-      }
+            if (identifierToken.type === 'Identifier') {
+              position++; // Move past the identifier
+              const nextToken = tokens[position];
   
-      // Handle string literals
-      if (token.type === 'String') {
-        current++;
-        return {
-          type: 'StringLiteral',
-          value: token.value
-        };
-      }
+              // Optional: Handle initialization (e.g., var x = 5;)
+              let initializer = null;
+              if (nextToken && nextToken.type === 'Operator' && nextToken.value === '=') {
+                position++; // Move past '='
+                initializer = parseExpression(); // Parse the expression after '='
+              }
   
-      // Handle identifiers
-      if (token.type === 'Identifier') {
-        current++;
-        return {
-          type: 'Identifier',
-          name: token.value
-        };
-      }
-  
-      // Handle import declarations
-      if (token.type === 'Keyword' && token.value === 'import') {
-        current++;
-        const source = walk();
-        const fromKeyword = tokens[current];
-        if (!fromKeyword || fromKeyword.type !== 'Keyword' || fromKeyword.value !== 'from') {
-          throw new Error(`Unexpected token: ${fromKeyword ? fromKeyword.value : 'end of input'}`);
-        }
-        current++;
-        const module = walk();
-        const semicolon = tokens[current];
-        if (!semicolon || semicolon.type !== 'Punctuation' || semicolon.value !== ';') {
-          throw new Error(`Unexpected token: ${semicolon ? semicolon.value : 'end of input'}`);
-        }
-        current++;
-        return {
-          type: 'ImportDeclaration',
-          source: source,
-          module: module
-        };
-      }
-  
-      // Handle let declarations
-      if (token.type === 'Keyword' && token.value === 'let') {
-        current++;
-        const identifier = walk(); // Expecting an identifier next
-        const assignment = tokens[current];
-        if (!assignment || assignment.type !== 'Operator' || assignment.value !== '=') {
-          throw new Error(`Unexpected token: ${assignment ? assignment.value : 'end of input'}`);
-        }
-        current++;
-        const value = walk(); // Expecting a literal or identifier next
-        const semicolon = tokens[current];
-        if (!semicolon || semicolon.type !== 'Punctuation' || semicolon.value !== ';') {
-          throw new Error(`Unexpected token: ${semicolon ? semicolon.value : 'end of input'}`);
-        }
-        current++;
-        return {
-          type: 'VariableDeclaration',
-          declarations: [
-            {
-              id: identifier,
-              init: value
+              return {
+                type: 'VariableDeclaration',
+                declarations: [
+                  {
+                    id: { type: 'Identifier', name: identifierToken.value },
+                    init: initializer,
+                  },
+                ],
+              };
             }
-          ]
-        };
-      }
+            throw new Error(`Expected identifier after 'var'`);
+          }
+          break;
   
-      // Handle binary expressions (e.g., a + b)
-      if (token.type === 'Identifier' || token.type === 'Literal') {
-        const left = walk(); // Get the left-hand side
-        const operator = tokens[current];
-        if (!operator || operator.type !== 'Operator') {
-          throw new Error(`Unexpected token: ${operator ? operator.value : 'end of input'}`);
-        }
-        current++;
-        const right = walk(); // Get the right-hand side
-        return {
-          type: 'BinaryExpression',
-          operator: operator.value,
-          left: left,
-          right: right
-        };
-      }
+        // Add cases for other statement types...
   
-      throw new Error(`Unexpected token: "${token ? token.value : 'end of input'}"`);
+        default:
+          throw new Error(`Unexpected token: ${token.value}`);
+      }
+    }
+  
+    function parseExpression() {
+      // Simplified for demonstration purposes
+      const token = tokens[position];
+  
+      if (token.type === 'Literal' || token.type === 'Identifier') {
+        position++;
+        return { type: token.type, value: token.value };
+      }
+      
+      throw new Error(`Expected expression but found ${token.value}`);
     }
   
     const ast = {
       type: 'Program',
-      body: []
+      body: [],
     };
   
-    while (current < tokens.length) {
-      ast.body.push(walk());
+    while (position < tokens.length) {
+      const statement = parseStatement();
+      if (statement) {
+        ast.body.push(statement);
+      }
     }
   
     return ast;
