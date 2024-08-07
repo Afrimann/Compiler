@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { lexer } from '../Compiler/Lexer.jsx';
 import { parser } from '../Compiler/Parser.jsx';
-import { semanticAnalyzer } from '../Compiler/SemanticAnalyzer.jsx'; // Import semantic analyzer
-import { irGenerator } from '../Compiler/IRGenerator.jsx'; // Import IR generator
-import { optimize } from '../Compiler/Optimizer.jsx'; // Import optimizer
+import { semanticAnalyzer } from '../Compiler/SemanticAnalyzer.jsx';
+import { irGenerator } from '../Compiler/IRGenerator.jsx';
+import { optimize } from '../Compiler/Optimizer.jsx';
 import { codeGenerator } from '../Compiler/CodeGenerator.jsx';
 
 const CodeEditor = () => {
@@ -14,9 +14,11 @@ const CodeEditor = () => {
   const handleCompile = () => {
     try {
       const lexedTokens = lexer(code); // Tokenize the input code
+      console.log('Lexed Tokens:', lexedTokens);
       setTokens(lexedTokens); // Update the state with the tokens
 
       const ast = parser(lexedTokens); // Parse the tokens into an AST
+      console.log('Parsed AST:', ast);
       semanticAnalyzer(ast); // Check for semantic issues
 
       const irNodes = irGenerator(ast); // Generate IR from the AST
@@ -25,6 +27,7 @@ const CodeEditor = () => {
 
       setOutput(generatedCode); // Update the output state with the generated code
     } catch (error) {
+      console.error('Compilation Error:', error);
       setOutput(`Error: ${error.message}`); // Display errors
     }
   };
